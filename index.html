@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wheel of Names | Random name picker</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="desktop no-touch body--light">
+    <div id="q-app">
+        <div class="q-layout q-layout--standard" tabindex="-1">
+            <!-- Header -->
+            <header class="q-header q-layout__section--marginal fixed-top">
+                <div class="q-toolbar row no-wrap items-center header q-px-none" role="toolbar">
+                    <a class="q-btn q-btn-item non-selectable no-outline q-btn--flat q-btn--rectangle" href="#">
+                        <span class="q-btn__content text-center col items-center">
+                            <div class="q-toolbar__title ellipsis flex no-wrap items-center gap-sm">
+                                <div class="q-avatar desktop">
+                                    <img src="image.png" alt="logo" width="38" height="38">
+                                </div>
+                                <h1 style="font-size: 1em; line-height: normal; margin: 0px; font-weight: 400;">wheelofnames.com</h1>
+                            </div>
+                        </span>
+                    </a>
+                    <div class="q-space"></div>
+                    <div class="toolbar">
+                        <button class="q-btn q-btn-item q-btn--flat" type="button">
+                            <span class="q-btn__content">
+                                <i class="q-icon on-left fas fa-palette"></i>
+                                <span class="block">Customize</span>
+                            </span>
+                        </button>
+                        <button class="q-btn q-btn-item q-btn--flat" type="button">
+                            <span class="q-btn__content">
+                                <i class="q-icon on-left fas fa-file"></i>
+                                <span class="block">New</span>
+                            </span>
+                        </button>
+                        <button class="q-btn q-btn-item q-btn--flat" type="button">
+                            <span class="q-btn__content">
+                                <i class="q-icon on-left fa fa-folder-open"></i>
+                                <span class="block">Open</span>
+                            </span>
+                        </button>
+                        <button class="q-btn q-btn-item q-btn--flat" type="button">
+                            <span class="q-btn__content">
+                                <i class="q-icon on-left fa fa-save"></i>
+                                <span class="block">Save</span>
+                            </span>
+                        </button>
+                        <button class="q-btn q-btn-item q-btn--flat" type="button">
+                            <span class="q-btn__content">
+                                <i class="q-icon on-left fa fa-share-alt"></i>
+                                <span class="block">Share</span>
+                            </span>
+                        </button>
+                        <a class="q-btn q-btn-item q-btn--flat" href="#">
+                            <span class="q-btn__content">
+                                <i class="q-icon on-left fa fa-search"></i>
+                                <span class="block">Gallery</span>
+                            </span>
+                        </a>
+                        <button class="q-btn q-btn-item q-btn--flat" type="button">
+                            <span class="q-btn__content">
+                                <i class="q-icon fa fa-expand"></i>
+                            </span>
+                        </button>
+                        <button class="q-btn q-btn-item q-btn--flat q-btn-dropdown" type="button">
+                            <span class="q-btn__content">
+                                <span class="block">More</span>
+                                <i class="q-icon fas fa-caret-down"></i>
+                            </span>
+                        </button>
+                        <button class="q-btn q-btn-item q-btn--flat" type="button">
+                            <span class="q-btn__content">
+                                <i class="q-icon on-left fas fa-globe"></i>
+                                <span class="block">English</span>
+                            </span>
+                        </button>
+                    </div>
+                    <button class="q-btn q-btn-item hamburger" type="button">
+                        <span class="q-btn__content">
+                            <i class="q-icon fas fa-bars"></i>
+                        </span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Main Content -->
+            <div class="q-page-container">
+                <div class="page-content">
+                    <!-- Left Column -->
+                    <div class="left-column">
+                        <div class="q-gutter-y-sm">
+                            <div class="row items-center q-gutter-x-md">
+                                <button class="q-btn q-btn--unelevated q-btn--round bg-primary text-white q-btn--dense">
+                                    <i class="q-icon fas fa-pencil-alt"></i>
+                                </button>
+                            </div>
+                            <div class="q-pb-sm desktop-only"></div>
+                        </div>
+                        
+                        <!-- Ad placeholder -->
+                        <div class="flex f-col gap">
+                            <div class="ad-declaration flex items-center gap">
+                                <div class="flex items-center">
+                                    <span>Report bad ad</span>
+                                    <button class="q-btn q-btn--flat q-btn--round" style="font-size: 10px;">
+                                        <i class="q-icon fas fa-flag"></i>
+                                    </button>
+                                </div>
+                                <div class="flex items-center">
+                                    <span>Close ads</span>
+                                    <button class="q-btn q-btn--flat q-btn--round" style="font-size: 10px;">
+                                        <i class="q-icon fas fa-times-circle"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="ad-placeholder">
+                                <img src="image_qc.png" alt="Advertisement" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Center Column - Wheel -->
+                    <div class="center-column">
+                        <div class="wheel-container">
+                            <div class="wheel-wrapper">
+                                <canvas class="wheel-canvas" width="700" height="700" aria-label="wheel"></canvas>
+                                <div class="spin-button-overlay">
+                                    <div class="spin-button">Click to spin</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column - Editor -->
+                    <div class="right-column">
+                        <div class="q-card full-height flex f-col">
+                            <!-- Tabs -->
+                            <div class="q-tabs row no-wrap items-center" role="tablist">
+                                <div class="q-tabs__content">
+                                    <div class="q-tab q-tab--active">
+                                        <div class="q-tab__content">
+                                            <div class="q-tab__label">Entries</div>
+                                            <div class="q-badge bg-grey-7">6</div>
+                                        </div>
+                                        <div class="q-tab__indicator"></div>
+                                    </div>
+                                    <div class="q-tab q-tab--inactive">
+                                        <div class="q-tab__content">
+                                            <div class="q-tab__label">Results</div>
+                                            <div class="q-badge bg-grey-7">0</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tab Panels -->
+                            <div class="q-tab-panels">
+                                <div class="q-panel">
+                                    <div class="q-tab-panel flex f-col gap">
+                                        <!-- Buttons -->
+                                        <div class="flex gap-sm">
+                                            <button class="q-btn q-btn--small bg-primary text-white" aria-label="Shuffle">
+                                                <i class="q-icon on-left fas fa-random"></i>
+                                                <span>Shuffle</span>
+                                            </button>
+                                            <button class="q-btn q-btn--small bg-primary text-white" aria-label="Sort">
+                                                <i class="q-icon on-left fas fa-sort-alpha-up"></i>
+                                                <span>Sort</span>
+                                            </button>
+                                            <button class="q-btn q-btn--small bg-primary text-white q-btn-dropdown">
+                                                <i class="q-icon on-left fas fa-image"></i>
+                                                <span>Add image</span>
+                                                <i class="q-icon fas fa-caret-down"></i>
+                                            </button>
+                                            <div class="q-checkbox">
+                                                <input type="checkbox">
+                                                <span>Advanced</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Editor -->
+                                        <div class="basic-editor" contenteditable="true">
+                                            <div>Ali</div>
+                                            <div>Beatriz</div>
+                                            <div>Charles</div>
+                                            <div>Fatima</div>
+                                            <div>Gabriel</div>
+                                            <div>Hanna</div>
+                                        </div>
+
+                                        <!-- Add Wheel Button -->
+                                        <div style="position: relative;">
+                                            <div class="q-btn-group">
+                                                <button class="q-btn bg-primary text-white">
+                                                    <i class="q-icon on-left fas fa-plus"></i>
+                                                    <span>Add wheel</span>
+                                                </button>
+                                                <button class="q-btn bg-primary text-white">
+                                                    <i class="q-icon fas fa-caret-down"></i>
+                                                </button>
+                                            </div>
+                                            <div class="q-badge bg-warning text-black beta-badge">Beta</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Version info -->
+                            <div class="flex justify-between items-center gap-sm q-pa-sm">
+                                <div class="flex items-center gap-sm">
+                                    <span>Version 395</span>
+                                    <a class="q-btn q-btn--small bg-primary text-white" href="#">New!</a>
+                                </div>
+                                <a href="#">Changelog</a>
+                            </div>
+                        </div>
+                        
+                        <!-- Hide button -->
+                        <button class="hide-editor-btn q-btn bg-primary text-white">
+                            <i class="q-icon fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- About Section -->
+                <hr>
+                <div class="q-pa-md about-card-row">
+                    <div class="about-card-column">
+                        <div class="q-card">
+                            <div class="q-card__section">
+                                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                    <img src="https://wheelofnames.com/icons/favicon-32x32.png" alt="" width="32" height="32">
+                                    <span class="text-h5">What is the wheel spinner for?</span>
+                                </div>
+                            </div>
+                            <div class="q-card__section">
+                                Every day we hear from people who use our website in new ways:
+                                <ul>
+                                    <li>Random name picker in the classroom: pick which student will answer the next question.</li>
+                                    <li>If you are a retailer, spin the wheel to pick which loyal customer will get the monthly giveaway.</li>
+                                    <li>When you give a presentation, use the wheel spinner to pick a lucky winner among the attendees who turned in the survey.</li>
+                                    <li>Random name picker at work: in your daily standup meeting at work, randomize who speaks first.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="q-card">
+                            <div class="q-card__section">
+                                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                    <img src="https://wheelofnames.com/icons/favicon-32x32.png" alt="" width="32" height="32">
+                                    <span class="text-h5">How to use the wheel spinner</span>
+                                </div>
+                            </div>
+                            <div class="q-card__section">
+                                <p>It's easy: type in your entries in the textbox to the right of the wheel, then click the wheel to spin it and get a random winner.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="about-card-column">
+                        <div class="q-card">
+                            <div class="q-card__section">
+                                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                    <img src="https://wheelofnames.com/icons/favicon-32x32.png" alt="" width="32" height="32">
+                                    <span class="text-h5">Is the wheel truly random?</span>
+                                </div>
+                            </div>
+                            <div class="q-card__section">
+                                <p>Yes, but don't just take our word for it. We are so confident in our code that we built a tool to let you prove it yourself.</p>
+                                <p><a class="q-btn bg-primary text-white" href="#">Run 10,000 Spins</a></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="about-card-column">
+                        <div class="q-card">
+                            <div class="q-card__section">
+                                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                    <img src="https://wheelofnames.com/icons/favicon-32x32.png" alt="" width="32" height="32">
+                                    <span class="text-h5">Can I close the ads?</span>
+                                </div>
+                            </div>
+                            <div class="q-card__section">
+                                <p>We rely on ads to keep the website free for everyone. However, we show fewer ads than most other websites.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <hr>
+                <footer class="gap-xl pad">
+                    <div class="flex f-col gap">
+                        <span>
+                            <i class="fas fa-balance-scale"></i>
+                            <a href="#">Terms & conditions</a>
+                        </span>
+                        <span>
+                            <i class="fas fa-user-secret"></i>
+                            <a href="#">Privacy policy</a>
+                        </span>
+                    </div>
+                    <div class="flex f-col gap">
+                        <span>
+                            <i class="fas fa-question-circle"></i>
+                            <a href="#">FAQ</a>
+                        </span>
+                        <span>
+                            <i class="fas fa-comment"></i>
+                            <a href="#">Feedback</a>
+                        </span>
+                    </div>
+                    <div class="flex f-col gap">
+                        <span>
+                            <i class="fab fa-discord"></i>
+                            <a href="#">Discord server</a>
+                        </span>
+                        <span>
+                            <i class="fab fa-discord"></i>
+                            <a href="#">Discord bot</a>
+                        </span>
+                    </div>
+                    <div class="flex f-col gap">
+                        <span>
+                            <i class="fas fa-code"></i>
+                            <a href="#">API</a>
+                        </span>
+                        <span>
+                            <i class="fas fa-video"></i>
+                            <a href="#">Streaming</a>
+                        </span>
+                    </div>
+                </footer>
+            </div>
+        </div>
+    </div>
+    <script src="wheel.js"></script>
+</body>
+</html>
