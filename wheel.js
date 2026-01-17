@@ -93,6 +93,32 @@ class WheelOfNames {
             }
         });
         
+        // Xử lý paste event
+        editor.addEventListener('paste', (e) => {
+            e.preventDefault();
+            
+            // Lấy text đã paste
+            const text = (e.clipboardData || window.clipboardData).getData('text');
+            
+            // Tách thành các dòng
+            const lines = text.split(/\r?\n/).filter(line => line.trim().length > 0);
+            
+            if (lines.length > 0) {
+                // Xóa nội dung hiện tại
+                editor.innerHTML = '';
+                
+                // Thêm từng dòng vào editor
+                lines.forEach(line => {
+                    const div = document.createElement('div');
+                    div.textContent = line.trim();
+                    editor.appendChild(div);
+                });
+                
+                // Cập nhật entries
+                this.updateEntriesFromEditor();
+            }
+        });
+        
         editor.addEventListener('input', () => this.updateEntriesFromEditor());
         editor.addEventListener('blur', () => this.updateEntriesFromEditor());
 
