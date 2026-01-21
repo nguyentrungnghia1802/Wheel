@@ -15,18 +15,37 @@ class RandomPicker {
         this.animationDuration = 4000; // 4 seconds
         this.targetIndex = null;
         
-        // Spin count and cheat control
-        this.spinCount = 0;
-        this.spin1Names = ['Sinh Huy', 'Đoàn Hiếu', 'Nam Hải', 'Việt Quang'];
-        this.spin2Names = ['Thế Pháp', 'Quang Anh', 'Châu Anh', 'Trung Nghĩa'];
-        this.spin3Names = ['Đình Minh', 'Tùng Nguyễn', 'Anh Tài', 'Huyền Trang'];
-        this.spin4Names = ['Cường', 'Chí Long', 'Trung Mai'];
-        this.spin5Names = ['Ngọc Đức', 'Thành Minh', 'Phương Anh'];
-        this.spin6Names = ['Hoàng Long'];
-        this.spin7Names = ['Xuân Bắc', 'Anh Quốc'];
-        this.spin8Names = ['Phương', 'Lê Nghĩa'];
+        // Load configuration from localStorage or use default
+        this.loadConfiguration();
         
         this.init();
+    }
+
+    loadConfiguration() {
+        const DEFAULT_CONFIG = {
+            spin1Names: ['Sinh Huy', 'Đoàn Hiếu', 'Nam Hải', 'Việt Quang'],
+            spin2Names: ['Thế Pháp', 'Quang Anh', 'Châu Anh', 'Trung Nghĩa'],
+            spin3Names: ['Đình Minh', 'Tùng Nguyễn', 'Anh Tài', 'Huyền Trang'],
+            spin4Names: ['Cường', 'Chí Long', 'Trung Mai'],
+            spin5Names: ['Ngọc Đức', 'Thành Minh', 'Phương Anh'],
+            spin6Names: ['Hoàng Long'],
+            spin7Names: ['Xuân Bắc', 'Anh Quốc'],
+            spin8Names: ['Phương', 'Lê Nghĩa']
+        };
+
+        const saved = localStorage.getItem('wheelConfig');
+        const config = saved ? JSON.parse(saved) : DEFAULT_CONFIG;
+
+        // Spin count and cheat control
+        this.spinCount = 0;
+        this.spin1Names = config.spin1Names || DEFAULT_CONFIG.spin1Names;
+        this.spin2Names = config.spin2Names || DEFAULT_CONFIG.spin2Names;
+        this.spin3Names = config.spin3Names || DEFAULT_CONFIG.spin3Names;
+        this.spin4Names = config.spin4Names || DEFAULT_CONFIG.spin4Names;
+        this.spin5Names = config.spin5Names || DEFAULT_CONFIG.spin5Names;
+        this.spin6Names = config.spin6Names || DEFAULT_CONFIG.spin6Names;
+        this.spin7Names = config.spin7Names || DEFAULT_CONFIG.spin7Names;
+        this.spin8Names = config.spin8Names || DEFAULT_CONFIG.spin8Names;
     }
 
     init() {
