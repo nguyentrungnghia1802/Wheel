@@ -1,30 +1,30 @@
-// Random Picker with Highlight Effect - JavaScript Logic
+// Wheel of Names - JavaScript Logic
 
-class RandomPicker {
+class WheelOfNames {
     constructor() {
         this.canvas = document.querySelector('.wheel-canvas');
         this.ctx = this.canvas.getContext('2d');
         this.entries = ['Ali', 'Beatriz', 'Charles', 'Fatima', 'Gabriel', 'Hanna'];
         this.colors = ['#5B8FED', '#E74C3C', '#FDB82C', '#43A047', '#5B8FED', '#E74C3C'];
-        this.isAnimating = false;
-        this.currentHighlightIndex = -1;
+        this.currentRotation = 0;
+        this.isSpinning = false;
+        this.spinSpeed = 0;
+        this.friction = 0.985;
+        this.minSpeed = 0.001;
+        this.idleRotationSpeed = 0; // No idle rotation
         this.winner = null;
         
-        // Animation control
-        this.animationStartTime = null;
-        this.animationDuration = 4000; // 4 seconds
-        this.targetIndex = null;
+        // Spin animation control (easing-based)
+        this.spinStartTime = null;
+        this.spinStartAngle = 0;
+        this.spinTargetRotation = 0;
+        this.spinDuration = 0;
+        this.targetIndex = null; // Store pre-selected winner index
         
         // Spin count and cheat control
         this.spinCount = 0;
-        this.spin1Names = ['Sinh Huy', 'Đoàn Hiếu', 'Nam Hải', 'Việt Quang'];
-        this.spin2Names = ['Thế Pháp', 'Quang Anh', 'Châu Anh', 'Trung Nghĩa'];
-        this.spin3Names = ['Đình Minh', 'Tùng Nguyễn', 'Anh Tài', 'Huyền Trang'];
-        this.spin4Names = ['Cường', 'Chí Long', 'Trung Mai'];
-        this.spin5Names = ['Ngọc Đức', 'Thành Minh', 'Phương Anh'];
-        this.spin6Names = ['Hoàng Long'];
-        this.spin7Names = ['Xuân Bắc', 'Anh Quốc'];
-        this.spin8Names = ['Phương', 'Lê Nghĩa'];
+        this.spin1Names = ['Sinh Huy', 'Đoàn Hiếu', 'Châu Anh', 'Mạnh Hùng', 'Việt Quang'];
+        this.spin2Names = ['Thế Pháp', 'Quang Anh', 'Anh Tài', 'Trung Nghĩa'];
         
         this.init();
     }
@@ -33,7 +33,7 @@ class RandomPicker {
         this.setupCanvas();
         this.setupEventListeners();
         this.draw();
-        this.animateIdle();
+        this.animate();
     }
 
     setupCanvas() {
@@ -46,60 +46,87 @@ class RandomPicker {
     }
 
     setupEventListeners() {
-        // Canvas click to start random pick
-        this.canvas.addEventListener('click', () => this.startPick());
-        this.canvas.style.cursor = 'pointer';
+        // Spin button click (hidden but still functional)
+        const spinButton = document.querySelector('.spin-button');
+        if (spinButton) {
+            spinButton.addEventListener('click', () => this.spin());
+        }
+
+        // Canvas click
+        this.canvas.addEventListener('click', () => this.spin());
 
         // Keyboard shortcut: Ctrl+Enter
         document.addEventListener('keydown', (e) => {
             if (e.ctrlKey && e.key === 'Enter') {
                 e.preventDefault();
-                this.startPick();
+                this.spin();
             }
         });
 
         // Editor changes
         const editor = document.querySelector('.basic-editor');
         
-        // Handle Enter key in editor
+        // Xử lý Enter key trong editor
         editor.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 e.preventDefault();
+                
+                // Tạo div mới
                 const newDiv = document.createElement('div');
                 newDiv.textContent = '';
+                
+                // Lấy selection hiện tại
                 const selection = window.getSelection();
                 const range = selection.getRangeAt(0);
+                
+                // Tìm div cha
                 let currentDiv = range.startContainer;
                 while (currentDiv && currentDiv.nodeName !== 'DIV') {
                     currentDiv = currentDiv.parentNode;
                 }
+                
                 if (currentDiv && currentDiv.parentNode === editor) {
+                    // Chèn div mới sau div hiện tại
                     currentDiv.parentNode.insertBefore(newDiv, currentDiv.nextSibling);
+                    
+                    // Focus vào div mới
                     const newRange = document.createRange();
                     newRange.setStart(newDiv, 0);
                     newRange.collapse(true);
                     selection.removeAllRanges();
                     selection.addRange(newRange);
                 } else {
+                    // Nếu không tìm thấy, thêm vào cuối
                     editor.appendChild(newDiv);
                     newDiv.focus();
                 }
+                
                 this.updateEntriesFromEditor();
             }
         });
         
-        // Handle paste event
+        // Xử lý paste event
         editor.addEventListener('paste', (e) => {
             e.preventDefault();
+            
+            // Lấy text đã paste
             const text = (e.clipboardData || window.clipboardData).getData('text');
+            
+            // Tách thành các dòng
             const lines = text.split(/\r?\n/).filter(line => line.trim().length > 0);
+            
             if (lines.length > 0) {
+                // Xóa nội dung hiện tại
                 editor.innerHTML = '';
+                
+                // Thêm từng dòng vào editor
                 lines.forEach(line => {
                     const div = document.createElement('div');
                     div.textContent = line.trim();
                     editor.appendChild(div);
                 });
+                
+                // Cập nhật entries
                 this.updateEntriesFromEditor();
             }
         });
@@ -147,13 +174,18 @@ class RandomPicker {
         
         for (let i = 0; i < this.entries.length; i++) {
             if (i === 0) {
+                // Phần tử đầu tiên chọn màu bất kỳ
                 this.colors.push(baseColors[i % baseColors.length]);
             } else {
+                // Tìm màu khác với màu trước đó
                 let colorIndex = i % baseColors.length;
                 let prevColor = this.colors[i - 1];
+                
+                // Nếu màu hiện tại trùng với màu trước, chọn màu tiếp theo
                 while (baseColors[colorIndex] === prevColor) {
                     colorIndex = (colorIndex + 1) % baseColors.length;
                 }
+                
                 this.colors.push(baseColors[colorIndex]);
             }
         }
@@ -166,6 +198,27 @@ class RandomPicker {
             badge.setAttribute('aria-label', this.entries.length);
         }
     }
+    
+    // Easing function for smooth deceleration
+    easeOutCubic(t) {
+        return 1 - Math.pow(1 - t, 3);
+    }
+    
+    // Pick target index (always cheat, never random)
+    pickTargetIndex() {
+        // Danh sách cố định, lần 1 luôn chọn Sinh Huy nếu có
+        if (this.spinCount === 1) {
+            const idx = this.entries.indexOf('Sinh Huy');
+            if (idx !== -1) return idx;
+        }
+        // Lần 2 luôn chọn Thế Pháp nếu có
+        if (this.spinCount === 2) {
+            const idx = this.entries.indexOf('Thế Pháp');
+            if (idx !== -1) return idx;
+        }
+        // Nếu không có, luôn chọn người đầu tiên
+        return 0;
+    }
 
     shuffle() {
         for (let i = this.entries.length - 1; i > 0; i--) {
@@ -173,14 +226,12 @@ class RandomPicker {
             [this.entries[i], this.entries[j]] = [this.entries[j], this.entries[i]];
         }
         this.updateEditor();
-        this.updateColors();
         this.draw();
     }
 
     sort() {
         this.entries.sort();
         this.updateEditor();
-        this.updateColors();
         this.draw();
     }
 
@@ -207,11 +258,14 @@ class RandomPicker {
         
         this.ctx.restore();
         
-        // Draw wheel segments
+        // Draw wheel
         this.drawWheel();
         
         // Draw center circle
         this.drawCenterCircle();
+        
+        // Draw arrow
+        this.drawArrow();
     }
 
     drawWheel() {
@@ -226,56 +280,51 @@ class RandomPicker {
         this.ctx.stroke();
 
         for (let i = 0; i < numEntries; i++) {
-            const startAngle = (i * anglePerEntry);
+            const startAngle = this.currentRotation + (i * anglePerEntry);
             const endAngle = startAngle + anglePerEntry;
             const middleAngle = startAngle + anglePerEntry / 2;
-
-            // Highlight current segment during animation
-            const isHighlighted = (i === this.currentHighlightIndex);
 
             // Draw slice
             this.ctx.beginPath();
             this.ctx.moveTo(this.centerX, this.centerY);
             this.ctx.arc(this.centerX, this.centerY, this.radius, startAngle, endAngle);
             this.ctx.closePath();
-            
-            if (isHighlighted) {
-                // Gold highlight with glow effect
-                this.ctx.save();
-                this.ctx.shadowColor = 'rgba(255, 215, 0, 1)';
-                this.ctx.shadowBlur = 30;
-                this.ctx.fillStyle = '#FFD700';
-                this.ctx.fill();
-                this.ctx.restore();
-            } else {
-                this.ctx.fillStyle = this.colors[i];
-                this.ctx.fill();
-            }
+            this.ctx.fillStyle = this.colors[i];
+            this.ctx.fill();
 
-            // Draw text
+            // Draw text - aligned with slice center
             this.ctx.save();
             this.ctx.translate(this.centerX, this.centerY);
             this.ctx.rotate(middleAngle);
             
+            // Font
             const fontSize = 48;
             this.ctx.font = `${fontSize}px Roboto, -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif`;
             
-            // Text color
-            const bgColor = isHighlighted ? '#FFD700' : this.colors[i];
+            // Chọn màu chữ theo màu nền
+            const bgColor = this.colors[i];
             if (bgColor === '#43A047' || bgColor === '#FDB82C') {
+                // Xanh lá và vàng -> chữ đen
                 this.ctx.fillStyle = '#000';
             } else {
+                // Đỏ và xanh dương -> chữ trắng
                 this.ctx.fillStyle = '#fff';
             }
             
+            // Căn giữa chuẩn
             this.ctx.textAlign = 'center';
             this.ctx.textBaseline = 'middle';
+            
+            // Shadow
             this.ctx.shadowColor = 'rgba(0, 0, 0, 0.35)';
             this.ctx.shadowBlur = 4;
             this.ctx.shadowOffsetX = 0;
             this.ctx.shadowOffsetY = 2;
             
+            // Vị trí chữ: giữa slice
             const textRadius = this.radius * 0.65;
+            
+            // Vẽ chữ
             this.ctx.fillText(this.entries[i], textRadius, 0);
             
             this.ctx.restore();
@@ -283,12 +332,14 @@ class RandomPicker {
     }
 
     drawCenterCircle() {
+        // Shadow for center circle
         this.ctx.save();
         this.ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
         this.ctx.shadowBlur = 8;
         this.ctx.shadowOffsetX = 0;
         this.ctx.shadowOffsetY = 4;
         
+        // White center circle
         this.ctx.beginPath();
         this.ctx.arc(this.centerX, this.centerY, this.radius * 0.18, 0, Math.PI * 2);
         this.ctx.fillStyle = '#fff';
@@ -296,6 +347,7 @@ class RandomPicker {
         
         this.ctx.restore();
         
+        // Border for center circle
         this.ctx.beginPath();
         this.ctx.arc(this.centerX, this.centerY, this.radius * 0.18, 0, Math.PI * 2);
         this.ctx.strokeStyle = '#ccc';
@@ -303,160 +355,138 @@ class RandomPicker {
         this.ctx.stroke();
     }
 
-    // Pick target index (with cheat support)
-    pickTargetIndex() {
-        let cheatName = null;
+    drawArrow() {
+        const arrowSize = 35;
+        const arrowX = this.centerX + this.radius + 5;
+        const arrowY = this.centerY;
+
+        // Get the color of the segment the arrow is pointing to
+        const segmentColor = this.getArrowColor();
+
+        this.ctx.save();
+        this.ctx.translate(arrowX, arrowY);
         
-        if (this.spinCount === 1) {
-            for (const name of this.spin1Names) {
-                if (this.entries.includes(name)) {
-                    cheatName = name;
-                    break;
-                }
-            }
-        } else if (this.spinCount === 2) {
-            for (const name of this.spin2Names) {
-                if (this.entries.includes(name)) {
-                    cheatName = name;
-                    break;
-                }
-            }
-        } else if (this.spinCount === 3) {
-            for (const name of this.spin3Names) {
-                if (this.entries.includes(name)) {
-                    cheatName = name;
-                    break;
-                }
-            }
-        } else if (this.spinCount === 4) {
-            for (const name of this.spin4Names) {
-                if (this.entries.includes(name)) {
-                    cheatName = name;
-                    break;
-                }
-            }
-        } else if (this.spinCount === 5) {
-            for (const name of this.spin5Names) {
-                if (this.entries.includes(name)) {
-                    cheatName = name;
-                    break;
-                }
-            }
-        } else if (this.spinCount === 6) {
-            for (const name of this.spin6Names) {
-                if (this.entries.includes(name)) {
-                    cheatName = name;
-                    break;
-                }
-            }
-        } else if (this.spinCount === 7) {
-            for (const name of this.spin7Names) {
-                if (this.entries.includes(name)) {
-                    cheatName = name;
-                    break;
-                }
-            }
-        } else if (this.spinCount === 8) {
-            for (const name of this.spin8Names) {
-                if (this.entries.includes(name)) {
-                    cheatName = name;
-                    break;
-                }
-            }
-        }
+        // Shadow for arrow
+        this.ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
+        this.ctx.shadowBlur = 8;
+        this.ctx.shadowOffsetX = -2;
+        this.ctx.shadowOffsetY = 2;
         
-        if (cheatName) {
-            const index = this.entries.indexOf(cheatName);
-            if (index !== -1) return index;
-        }
+        // Draw arrow triangle - pointing right (from outside into wheel)
+        this.ctx.beginPath();
+        this.ctx.moveTo(0, 0);
+        this.ctx.lineTo(arrowSize, -arrowSize * 0.6);
+        this.ctx.lineTo(arrowSize, arrowSize * 0.6);
+        this.ctx.closePath();
         
-        // Random but avoid future cheat names
-        return this.getRandomExcludingFutureNames();
-    }
-    
-    getRandomExcludingFutureNames() {
-        // Collect all names reserved for future spins
-        const futureNames = [];
+        // Use segment color for arrow
+        this.ctx.fillStyle = segmentColor;
+        this.ctx.fill();
         
-        if (this.spinCount < 1) futureNames.push(...this.spin1Names);
-        if (this.spinCount < 2) futureNames.push(...this.spin2Names);
-        if (this.spinCount < 3) futureNames.push(...this.spin3Names);
-        if (this.spinCount < 4) futureNames.push(...this.spin4Names);
-        if (this.spinCount < 5) futureNames.push(...this.spin5Names);
-        if (this.spinCount < 6) futureNames.push(...this.spin6Names);
-        if (this.spinCount < 7) futureNames.push(...this.spin7Names);
-        if (this.spinCount < 8) futureNames.push(...this.spin8Names);
+        // White border for arrow
+        this.ctx.strokeStyle = '#fff';
+        this.ctx.lineWidth = 3;
+        this.ctx.stroke();
         
-        // Get available entries (excluding future reserved names)
-        const availableEntries = this.entries.filter(entry => !futureNames.includes(entry));
-        
-        // If all entries are reserved, pick from all
-        if (availableEntries.length === 0) {
-            return Math.floor(Math.random() * this.entries.length);
-        }
-        
-        // Pick random from available
-        const randomEntry = availableEntries[Math.floor(Math.random() * availableEntries.length)];
-        return this.entries.indexOf(randomEntry);
+        this.ctx.restore();
     }
 
-    startPick() {
-        if (this.isAnimating) return;
+    getArrowColor() {
+        // Calculate which segment the arrow is pointing to
+        const numEntries = this.entries.length;
+        const anglePerEntry = (Math.PI * 2) / numEntries;
+        
+        // Arrow points to the right (0 degrees)
+        // Normalize rotation to 0-2π
+        let normalizedRotation = this.currentRotation % (Math.PI * 2);
+        if (normalizedRotation < 0) normalizedRotation += Math.PI * 2;
+        
+        // Find which segment is at the arrow position
+        const arrowAngle = 0; // Arrow is at 0 degrees (pointing right)
+        let segmentIndex = Math.floor((Math.PI * 2 - normalizedRotation) / anglePerEntry) % numEntries;
+        
+        return this.colors[segmentIndex];
+    }
 
-        this.isAnimating = true;
+    spin() {
+        if (this.isSpinning) return;
+
+        this.isSpinning = true;
         this.spinCount++;
         
-        // Pick target
+        // Step 1: Pick target (cheat or random) and store it
         this.targetIndex = this.pickTargetIndex();
         
-        // Start highlight animation
-        this.animationStartTime = performance.now();
-        this.currentHighlightIndex = 0;
-        this.animatePick();
+        // Step 2: Calculate target angle
+        const numEntries = this.entries.length;
+        const anglePerEntry = (Math.PI * 2) / numEntries;
+        const targetAngle = this.targetIndex * anglePerEntry + anglePerEntry / 2;
+        
+        // Step 3: Calculate total rotation
+        // Extra spins: 4-8 full rotations for natural look
+        const extraSpins = 4 + Math.random() * 4;
+        const totalRotation = extraSpins * (Math.PI * 2) + ((Math.PI * 2) - targetAngle);
+        
+        // Step 4: Setup animation parameters
+        this.spinStartTime = performance.now();
+        this.spinStartAngle = this.currentRotation;
+        this.spinTargetRotation = this.spinStartAngle + totalRotation;
+        this.spinDuration = 5000 + Math.random() * 1000; // 5-6 seconds
+        
+        // Optional: Add small random offset (±2 degrees) for realism
+        const offsetDegrees = (Math.random() - 0.5) * 4 * (Math.PI / 180);
+        this.spinTargetRotation += offsetDegrees;
     }
 
-    animatePick() {
-        if (!this.isAnimating) return;
-
-        const now = performance.now();
-        const elapsed = now - this.animationStartTime;
-        const progress = Math.min(elapsed / this.animationDuration, 1);
-
-        // Speed decreases over time (easing)
-        const speed = 50 + (1 - progress) * 200; // Start fast, slow down
-        
-        if (progress >= 0.95) {
-            // In final stage, lock to target
-            this.currentHighlightIndex = this.targetIndex;
+    animate() {
+        if (this.isSpinning) {
+            const now = performance.now();
+            const elapsed = now - this.spinStartTime;
+            const t = Math.min(elapsed / this.spinDuration, 1);
+            // Apply easing
+            const eased = this.easeOutCubic(t);
+            // Calculate current rotation
+            const rotationDelta = this.spinTargetRotation - this.spinStartAngle;
+            this.currentRotation = this.spinStartAngle + rotationDelta * eased;
+            // Check if animation complete
+            if (t >= 1) {
+                // Snap to exact target (remove any offset for precision)
+                this.currentRotation = this.spinTargetRotation;
+                this.isSpinning = false;
+                this.showWinner();
+                // After spin, reset rotation so arrow points to first entry
+                setTimeout(() => {
+                    this.currentRotation = 0;
+                    this.draw();
+                }, 500);
+            }
         } else {
-            // Pick random index to highlight (not sequential)
-            this.currentHighlightIndex = Math.floor(Math.random() * this.entries.length);
+            // Always point to first entry when idle
+            this.currentRotation = 0;
         }
-        
-        // Draw current state
         this.draw();
-
-        if (progress >= 1) {
-            // Animation complete - ensure target is highlighted
-            this.currentHighlightIndex = this.targetIndex;
-            this.draw();
-            this.isAnimating = false;
-            setTimeout(() => this.showWinner(), 500);
-        } else {
-            setTimeout(() => this.animatePick(), speed);
-        }
-    }
-
-    animateIdle() {
-        if (!this.isAnimating) {
-            this.currentHighlightIndex = -1;
-            this.draw();
-        }
-        requestAnimationFrame(() => this.animateIdle());
+        requestAnimationFrame(() => this.animate());
     }
 
     showWinner() {
-        this.winner = this.entries[this.targetIndex];
+        // Use pre-selected target index (ensures cheat works correctly)
+        if (this.targetIndex !== null && this.targetIndex >= 0 && this.targetIndex < this.entries.length) {
+            this.winner = this.entries[this.targetIndex];
+            this.targetIndex = null; // Reset for next spin
+        } else {
+            // Fallback: calculate from rotation (shouldn't happen)
+            const numEntries = this.entries.length;
+            const anglePerEntry = (Math.PI * 2) / numEntries;
+            
+            let normalizedRotation = this.currentRotation % (Math.PI * 2);
+            if (normalizedRotation < 0) normalizedRotation += Math.PI * 2;
+            
+            const winnerIndex = Math.floor((Math.PI * 2 - normalizedRotation) / anglePerEntry) % numEntries;
+            this.winner = this.entries[winnerIndex];
+        }
+
+        // Cập nhật lại màu sau khi quay
+        this.updateColors();
 
         // Show winner dialog
         this.displayWinnerDialog();
@@ -466,6 +496,7 @@ class RandomPicker {
     }
 
     displayWinnerDialog() {
+        // Create dialog overlay
         const overlay = document.createElement('div');
         overlay.className = 'winner-overlay';
         overlay.innerHTML = `
@@ -481,6 +512,7 @@ class RandomPicker {
 
         document.body.appendChild(overlay);
 
+        // Add event listeners
         overlay.querySelector('.winner-btn-close').addEventListener('click', () => {
             overlay.remove();
         });
@@ -490,6 +522,7 @@ class RandomPicker {
             overlay.remove();
         });
 
+        // Click outside to close
         overlay.addEventListener('click', (e) => {
             if (e.target === overlay) {
                 overlay.remove();
@@ -504,16 +537,14 @@ class RandomPicker {
             this.colors.splice(index, 1);
             this.updateEditor();
             this.updateEntryCount();
-            this.currentHighlightIndex = -1;
+            // Always reset rotation so arrow points to new first entry
+            this.currentRotation = 0;
             this.draw();
-            
             // Update results count
             const resultsTab = document.querySelectorAll('.q-tab')[1];
-            if (resultsTab) {
-                const resultsBadge = resultsTab.querySelector('.q-badge');
-                const currentCount = parseInt(resultsBadge.textContent) || 0;
-                resultsBadge.textContent = currentCount + 1;
-            }
+            const resultsBadge = resultsTab.querySelector('.q-badge');
+            const currentCount = parseInt(resultsBadge.textContent) || 0;
+            resultsBadge.textContent = currentCount + 1;
         }
     }
 
@@ -535,6 +566,7 @@ class RandomPicker {
 
             const particleCount = 50 * (timeLeft / duration);
             
+            // Create confetti particles
             for (let i = 0; i < particleCount; i++) {
                 createConfettiParticle(
                     randomInRange(0.1, 0.9),
@@ -559,7 +591,7 @@ function createConfettiParticle(x, y) {
     setTimeout(() => particle.remove(), 3000);
 }
 
-// Initialize picker when DOM is loaded
+// Initialize wheel when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    new RandomPicker();
+    new WheelOfNames();
 });
