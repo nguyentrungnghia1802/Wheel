@@ -271,13 +271,26 @@ class RandomPicker {
                 this.ctx.fill();
             }
 
-            // Draw text
+            // Draw text with auto font sizing
             this.ctx.save();
             this.ctx.translate(this.centerX, this.centerY);
             this.ctx.rotate(middleAngle);
             
-            const fontSize = 48;
+            // Calculate optimal font size based on text length and available space
+            const text = this.entries[i];
+            const textRadius = this.radius * 0.65;
+            const maxWidth = this.radius * 0.5; // Maximum width for text
+            
+            let fontSize = Math.min(48, this.radius / 8);
             this.ctx.font = `${fontSize}px Roboto, -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif`;
+            let textWidth = this.ctx.measureText(text).width;
+            
+            // Reduce font size if text is too long
+            while (textWidth > maxWidth && fontSize > 10) {
+                fontSize -= 2;
+                this.ctx.font = `${fontSize}px Roboto, -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif`;
+                textWidth = this.ctx.measureText(text).width;
+            }
             
             // Text color
             const bgColor = isHighlighted ? '#FFD700' : this.colors[i];
@@ -294,8 +307,13 @@ class RandomPicker {
             this.ctx.shadowOffsetX = 0;
             this.ctx.shadowOffsetY = 2;
             
-            const textRadius = this.radius * 0.65;
-            this.ctx.fillText(this.entries[i], textRadius, 0);
+            // Truncate text if still too long
+            let displayText = text;
+            if (textWidth > maxWidth) {
+                displayText = text.substring(0, Math.floor(text.length * maxWidth / textWidth)) + '...';
+            }
+            
+            this.ctx.fillText(displayText, textRadius, 0);
             
             this.ctx.restore();
         }

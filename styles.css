@@ -193,6 +193,15 @@ body {
     display: inline-flex;
 }
 
+@media (min-width: 768px) {
+    .toolbar {
+        display: flex;
+    }
+    .hamburger {
+        display: none;
+    }
+}
+
 @media (min-width: 1078px) {
     .desktop {
         display: block;
@@ -222,6 +231,7 @@ body {
 
 /* Columns */
 .left-column {
+    display: none;
     width: 100%;
     padding: 16px 16px 0;
 }
@@ -231,15 +241,29 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 20px 10px;
 }
 
 .right-column {
     position: relative;
     width: 100%;
-    height: 600px;
+    height: auto;
+    min-height: 400px;
     padding: 0 16px 16px;
 }
 
+/* Tablet */
+@media (min-width: 600px) {
+    .left-column {
+        display: block;
+    }
+    
+    .right-column {
+        min-height: 500px;
+    }
+}
+
+/* Desktop */
 @media (min-width: 900px) and (min-height: 450px) and (orientation: landscape) {
     .page-content {
         height: calc(100vh - 50px);
@@ -247,25 +271,29 @@ body {
     }
     
     .left-column {
+        display: block;
         flex: 1;
         padding: 16px 0 16px 16px;
     }
     
     .center-column {
         flex: 2;
+        padding: 16px;
     }
     
     .right-column {
         flex: 1;
         max-width: 25%;
         height: 100%;
+        min-height: auto;
         padding: 16px 16px 16px 0;
     }
 }
 
 /* Wheel Container */
 .wheel-container {
-    width: min(100%, calc(100vh - 50px));
+    width: 100%;
+    max-width: min(90vw, 90vh, 600px);
     margin: auto;
     position: relative;
 }
@@ -283,6 +311,7 @@ body {
     width: 100%;
     height: 100%;
     background: transparent;
+    touch-action: manipulation;
     cursor: pointer;
 }
 
@@ -733,5 +762,39 @@ a:hover {
     
     .body--dark .winner-name {
         color: #fff;
+    }
+}
+
+/* Mobile Optimizations */
+@media (max-width: 600px) {
+    .q-toolbar {
+        padding: 8px 12px;
+    }
+    
+    .header h1 {
+        font-size: 18px;
+    }
+    
+    .q-btn__content span {
+        font-size: 12px;
+    }
+    
+    .q-icon {
+        font-size: 16px;
+    }
+    
+    .center-column {
+        padding: 10px;
+    }
+    
+    .wheel-container {
+        max-width: 95vw;
+    }
+}
+
+/* Landscape Mobile */
+@media (max-width: 900px) and (orientation: landscape) {
+    .wheel-container {
+        max-width: min(70vh, 90vw);
     }
 }
