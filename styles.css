@@ -293,7 +293,7 @@ body {
 /* Wheel Container */
 .wheel-container {
     width: 100%;
-    max-width: min(90vw, 90vh, 600px);
+    max-width: min(95vw, 95vh, 800px);
     margin: auto;
     position: relative;
 }

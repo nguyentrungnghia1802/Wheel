@@ -61,7 +61,7 @@ class RandomPicker {
         this.canvas.height = size;
         this.centerX = this.canvas.width / 2;
         this.centerY = this.canvas.height / 2;
-        this.radius = Math.min(this.centerX, this.centerY) - 3;
+        this.radius = Math.min(this.centerX, this.centerY) - 1;
     }
 
     setupEventListeners() {
