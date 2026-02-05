@@ -19,6 +19,9 @@ body {
     line-height: 1.5;
     color: #000;
     background-color: #fff;
+    overflow-x: hidden; /* Prevent horizontal scroll on mobile */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 /* Utility Classes */
@@ -767,34 +770,271 @@ a:hover {
 
 /* Mobile Optimizations */
 @media (max-width: 600px) {
+    /* Header responsive */
     .q-toolbar {
         padding: 8px 12px;
     }
     
-    .header h1 {
-        font-size: 18px;
+    .header h1,
+    .q-toolbar__title {
+        font-size: 16px !important;
+    }
+    
+    .q-avatar {
+        width: 32px;
+        height: 32px;
+        min-width: 32px;
     }
     
     .q-btn__content span {
-        font-size: 12px;
+        font-size: 11px;
     }
     
     .q-icon {
         font-size: 16px;
     }
     
+    .q-btn--dense {
+        padding: 6px 10px;
+    }
+    
+    /* Toolbar buttons - hide text, show icons only */
+    .toolbar .q-btn__content span:not(.q-icon) {
+        display: none;
+    }
+    
+    .toolbar .q-btn {
+        min-width: 40px;
+        padding: 8px;
+    }
+    
+    /* Hamburger menu always visible on mobile */
+    .hamburger {
+        display: flex !important;
+    }
+    
+    .toolbar {
+        display: none;
+    }
+    
+    /* Wheel container */
     .center-column {
-        padding: 10px;
+        padding: 10px 5px;
     }
     
     .wheel-container {
         max-width: 95vw;
+        max-height: 95vw;
+    }
+    
+    .wheel-canvas {
+        width: 100% !important;
+        height: 100% !important;
+    }
+    
+    .spin-button {
+        font-size: 14px;
+        padding: 10px 20px;
+    }
+    
+    /* Right column editor */
+    .right-column {
+        padding: 0 12px 12px;
+        min-height: 300px;
+    }
+    
+    .q-card {
+        border-radius: 8px;
+    }
+    
+    .q-tabs__content {
+        gap: 4px;
+    }
+    
+    .q-tab {
+        padding: 8px 12px;
+        font-size: 12px;
+        min-width: auto;
+    }
+    
+    .q-badge {
+        font-size: 9px;
+        padding: 2px 4px;
+    }
+    
+    .basic-editor {
+        font-size: 14px;
+        min-height: 200px;
+    }
+    
+    /* Button group */
+    .q-btn-group .q-btn {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+    
+    /* Winner dialog */
+    .winner-dialog {
+        min-width: 280px;
+        max-width: 95%;
+        margin: 10px;
+    }
+    
+    .winner-header {
+        padding: 16px;
+        font-size: 18px;
+    }
+    
+    .winner-name {
+        padding: 30px 15px;
+        font-size: 32px;
+    }
+    
+    .winner-actions {
+        padding: 12px;
+        gap: 8px;
+        flex-direction: column-reverse;
+    }
+    
+    .winner-btn-close,
+    .winner-btn-remove {
+        width: 100%;
+        padding: 12px;
+        font-size: 14px;
+    }
+    
+    /* About cards */
+    .about-card-row {
+        padding: 12px;
+    }
+    
+    .about-card-column {
+        padding: 12px;
+    }
+    
+    .about-card-column h3 {
+        font-size: 18px;
+    }
+    
+    .about-card-column p,
+    .about-card-column li {
+        font-size: 14px;
+    }
+    
+    /* Footer */
+    footer {
+        grid-template-columns: auto;
+        padding: 12px;
+        gap: 8px;
+    }
+    
+    footer .flex {
+        font-size: 14px;
+    }
+    
+    /* Ad placeholder */
+    .ad-placeholder {
+        height: 50px;
+        font-size: 12px;
+    }
+    
+    /* Hide editor button */
+    .hide-editor-btn {
+        bottom: 12px;
+        right: 12px;
+        width: 44px;
+        height: 44px;
+    }
+}
+
+/* Small phones (320px - 375px) */
+@media (max-width: 375px) {
+    .header h1,
+    .q-toolbar__title {
+        font-size: 14px !important;
+    }
+    
+    .q-avatar {
+        width: 28px;
+        height: 28px;
+        min-width: 28px;
+    }
+    
+    .wheel-container {
+        max-width: 98vw;
+    }
+    
+    .winner-name {
+        font-size: 28px;
+        padding: 20px 10px;
+    }
+    
+    .basic-editor {
+        font-size: 13px;
     }
 }
 
 /* Landscape Mobile */
 @media (max-width: 900px) and (orientation: landscape) {
+    .page-content {
+        min-height: auto;
+    }
+    
     .wheel-container {
-        max-width: min(70vh, 90vw);
+        max-width: min(60vh, 80vw);
+        max-height: 80vh;
+    }
+    
+    .center-column {
+        padding: 10px;
+    }
+    
+    .right-column {
+        min-height: 250px;
+    }
+    
+    .basic-editor {
+        min-height: 150px;
+    }
+    
+    .winner-dialog {
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+}
+
+/* Touch improvements */
+@media (hover: none) and (pointer: coarse) {
+    /* Larger touch targets */
+    .q-btn {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    
+    .q-tab {
+        min-height: 44px;
+    }
+    
+    /* Remove hover effects on touch devices */
+    .q-btn:hover {
+        background-color: transparent;
+    }
+    
+    .q-btn--flat:hover {
+        background-color: rgba(0, 0, 0, 0.03);
+    }
+    
+    /* Better tap feedback */
+    .q-btn:active {
+        opacity: 0.7;
+    }
+    
+    .wheel-canvas {
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+    }
+    
+    .spin-button:active {
+        transform: scale(0.95);
     }
 }
