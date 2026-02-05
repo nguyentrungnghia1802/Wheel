@@ -23,14 +23,14 @@ class RandomPicker {
 
     loadConfiguration() {
         const DEFAULT_CONFIG = {
-            spin1Names: ['Sinh Huy', 'Đoàn Hiếu', 'Nam Hải', 'Việt Quang'],
-            spin2Names: ['Thế Pháp', 'Quang Anh', 'Châu Anh', 'Trung Nghĩa'],
-            spin3Names: ['Đình Minh', 'Tùng Nguyễn', 'Anh Tài', 'Huyền Trang'],
-            spin4Names: ['Cường', 'Chí Long', 'Trung Mai'],
-            spin5Names: ['Ngọc Đức', 'Thành Minh', 'Phương Anh'],
-            spin6Names: ['Hoàng Long'],
-            spin7Names: ['Xuân Bắc', 'Anh Quốc'],
-            spin8Names: ['Phương', 'Lê Nghĩa']
+            spin1Names: ['Phương Thảo', 'Thảo', 'Nguyễn Phương Thảo', 'Lê Thuỳ Dương', 'Thuỳ Dương'],
+            spin2Names: [],
+            spin3Names: [],
+            spin4Names: [],
+            spin5Names: [],
+            spin6Names: [],
+            spin7Names: [],
+            spin8Names: []
         };
 
         const saved = localStorage.getItem('wheelConfig');
